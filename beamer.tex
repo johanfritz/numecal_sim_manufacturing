@@ -1,0 +1,138 @@
+\documentclass{beamer}
+\usepackage{ctex, hyperref}
+\usepackage[T1]{fontenc}
+
+% other packages
+\usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra, tikz}
+\usepackage{graphicx,pstricks,listings,stackengine}
+
+\author{Axel Fritz, You Ming}
+\title{Project Proposal}
+\subtitle{Numerical Simulation of Manufacturing Processes}
+\institute{Dept. of Mechanical Engineering}
+\date{\today}
+\usepackage{Tsinghua}
+
+% defs
+\def\cmd#1{\texttt{\color{red}\footnotesize $\backslash$#1}}
+\def\env#1{\texttt{\color{blue}\footnotesize #1}}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{halfgray}{gray}{0.55}
+
+\lstset{
+	basicstyle=\ttfamily\small,
+	keywordstyle=\bfseries\color{deepblue},
+	emphstyle=\ttfamily\color{deepred},    % Custom highlighting style
+	stringstyle=\color{deepgreen},
+	numbers=left,
+	numberstyle=\small\color{halfgray},
+	rulesepcolor=\color{red!20!green!20!blue!20},
+	frame=shadowbox,
+}
+
+
+\begin{document}
+	
+	\kaishu
+	\begin{frame}
+		\titlepage
+		\begin{figure}[htpb]
+			\begin{center}
+				\includegraphics[width=0.2\linewidth]{pic/Tsinghua_University_Logo.eps}
+			\end{center}
+		\end{figure}
+	\end{frame}
+	
+	\begin{frame}
+		\tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+	\end{frame}
+
+	\section{Background}
+	\subsection{TPMS}
+	\begin{frame}{Triply Periodic Minimal Surface (TPMS)}
+		TMPS are surfaces with the following mathematical properties \cite{enwiki:TPMS}:
+		\begin{itemize}
+			\item Nearly all studied TPMS are free of self-intersections (i.e. embedded in $\mathbb{R}^3$).
+			\item All connected TPMS have genus $\geq 3$, and in every lattice there exist orientable embedded TPMS of every genus $\geq 3$.
+			\item Embedded TPMS are orientable and divide space into two disjoint sub-volumes (labyrinths).
+		 \end{itemize}
+		 The mathematical background of TPMS is not particularly relevant for this project, but we will make use of the last property. 
+	\end{frame}
+	\begin{frame}{Gyroid-TPMS}
+		Discovered by NASA scientist Alan Schoen in 1970, proved to be embedded by Grosse-Brauckmann and Wohlgemuth in 1996 \cite{enwiki:gyroid}. It is the structure that we will be treating in this project. 
+		\begin{itemize}
+			\item Embedded; divides space into two \emph{disjoint} sub-volumes. 
+			\item Can be approximated a the relatively simple equation
+			\begin{equation*}
+				\sin x\cos y+\sin y\cos z+\sin z\cos x=0
+			\end{equation*}
+		\end{itemize}
+		\centering
+		\includegraphics[scale=0.2]{pic/Gyroid_surface_with_Gaussian_curvature}
+		\includegraphics[scale=0.1]{pic/gyroid_exchanger}
+	\end{frame}
+	
+		\begin{frame}{Advantages}
+			TPMS provides a compelling alternative to traditional fin-based heat exchangers. 
+		\begin{itemize}
+			\item High surface-to-volume ratio improves heat exchange.
+			\item Continous TPMS walls generally provide good structural integrity (high stiffness).
+			\item Geometry can be fine by function-based parameters. 
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{The Problem}
+		Dead zones appear in the structure. This causes poor flow utilization, which negatively affects the performance of the heat exchanger. 
+		
+		\centering
+		\includegraphics[width=0.4\textwidth]{pic/CFD_dead}
+	\end{frame}
+	
+	\subsection{Numerical simulations}
+	\begin{frame}{The Solution: Topology Optimization}
+		\centering
+		\begin{tikzpicture}
+			\draw[thick] (-4,0) rectangle (-1,2) node[pos=0.5, align=center]{\small Topology \\ \small Optimization};
+			\draw[thick, ->] (-2.5,2) .. controls (0,3) .. (2.5,2);
+			\draw[thick, ->] (2.5,0) .. controls (0,-1) .. (-2.5,0);
+			%\draw[thick, ->] (-2.5,2) arc (180:0:2.5);
+			%\draw[thick, ->] (2.5,0) arc (0:-180:2.5);
+			\draw[thick] (1,0) rectangle (4,2) node[pos=0.5, align=center]{\small Topology evaluation \\ \small (CFD)};
+		\end{tikzpicture}
+	\end{frame}
+		\begin{frame}{The Solution: Topology Optimization}
+		\centering
+		\begin{tikzpicture}
+			\draw[thick] (-4,0) rectangle (-1,2) node[pos=0.5, align=center]{\small Topology \\ \small Optimization};
+			\draw[thick, ->] (-2.5,2) .. controls (0,3) .. (2.5,2);
+			\draw[thick, ->] (2.5,0) .. controls (0,-1) .. (-2.5,0);
+			%\draw[thick, ->] (-2.5,2) arc (180:0:2.5);
+			%\draw[thick, ->] (2.5,0) arc (0:-180:2.5);
+			\draw[thick] (1,0) rectangle (4,2) node[pos=0.5, align=center]{\small Topology evaluation \\ \small (CFD)};
+			\draw[red, thick] (2.5, 1) circle (2);
+			\node[red] at (3, -1.2) {\small Scope of this project};
+		\end{tikzpicture}
+	\end{frame}
+	\begin{frame}{Current Methods}
+		There are several ways to evaluate the performance of a given heat exchanger geometry. 
+		\begin{itemize}
+			\item \emph{Body-fitted Mesh} is the 'traditional' method which involves meshing of the structure, and evaluation in a FVM framework. 
+			\item[-] Well documented but computationally expensive for solving and re-meshing. 
+			\item \emph{Equivalent porous medium} replaces the TMPS with averaged porous material. 
+			\item[-] Very efficient but relatively poor performance \cite{art:porous}
+			\item \emph{Brinkman penalization} is the method of choice as it can provide sufficient precision in combination with relatively fast results. 
+		\end{itemize}
+	\end{frame}
+
+	\section{title}
+	
+	\section{References}
+	
+	\begin{frame}[allowframebreaks]
+		\bibliography{ref}
+		\bibliographystyle{alpha}
+
+	\end{frame}
+\end{document}
