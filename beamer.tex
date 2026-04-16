@@ -126,8 +126,24 @@
 		\end{itemize}
 	\end{frame}
 
-	\section{title}
-	
+	\section{Brinkman Penilization}
+	\begin{frame}{How it works}
+
+
+
+	\begin{itemize}
+		\item The solid regions are treated as porous regions, with permeability $\eta\to 0$ (approaching solid).
+		\item A penalty term proportional to the Brinkman force is then added to the Navier-Stokes equation. 
+		\item The penalty term is chosen in such a way that the momentum of the fluids approaches zero inside the solid region, making it effectively non-permeable. 
+	\end{itemize}
+	\end{frame}
+	\begin{frame}{Why it works}
+		\begin{itemize}
+			\item 'Traditional' CFD methods require geometry-specific meshes to be generated. This process can be computationally expensive, especially for complex (read TPMS) geometries. 
+			\item During topology optimization, the need to re-mesh the geometry at every iteration renders 'traditional' methods practically unusable for TPMS geometries. 
+			\item 
+		\end{itemize}
+	\end{frame}
 	\section{References}
 	
 	\begin{frame}[allowframebreaks]
