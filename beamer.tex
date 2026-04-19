@@ -1,3 +1,4 @@
+% !TeX spellcheck = en_US
 \documentclass{beamer}
 \usepackage{ctex, hyperref}
 \usepackage[T1]{fontenc}
@@ -10,7 +11,7 @@
 \title{Project Proposal}
 \subtitle{Numerical Simulation of Manufacturing Processes}
 \institute{Dept. of Mechanical Engineering}
-\date{\today}
+\date{April 20, 2026}
 \usepackage{Tsinghua}
 
 % defs
@@ -79,7 +80,7 @@
 		\begin{itemize}
 			\item High surface-to-volume ratio improves heat exchange.
 			\item Continous TPMS walls generally provide good structural integrity (high stiffness).
-			\item Geometry can be fine by function-based parameters. 
+			\item Geometry can be fine-tuned by function-based parameters. 
 		\end{itemize}
 	\end{frame}
 	
@@ -120,19 +121,21 @@
 		\begin{itemize}
 			\item \emph{Body-fitted Mesh} is the 'traditional' method which involves meshing of the structure, and evaluation in a FVM framework. 
 			\item[-] Well documented but computationally expensive for solving and re-meshing. 
+			\pause
 			\item \emph{Equivalent porous medium} replaces the TMPS with averaged porous material. 
 			\item[-] Very efficient but relatively poor performance \cite{art:porous}
-			\item \emph{Brinkman penalization} is the method of choice as it can provide sufficient precision in combination with relatively fast results. 
+			\pause
+			\item \emph{Brinkman penalization} is the method of choice as it can provide sufficient precision in combination with relatively fast results \cite{art:TPMS}. 
 		\end{itemize}
 	\end{frame}
 
-	\section{Brinkman Penilization}
+	\section{Brinkman Penalization}
 	\begin{frame}{How it works}
 
 
 
 	\begin{itemize}
-		\item The solid regions are treated as porous regions, with permeability $\eta\to 0$ (approaching solid).
+		\item The solid regions are treated as porous, with permeability $\eta\to 0$ (approaching solid).
 		\item A penalty term proportional to the Brinkman force is then added to the Navier-Stokes equation. 
 		\item The penalty term is chosen in such a way that the momentum of the fluids approaches zero inside the solid region, making it effectively non-permeable. 
 	\end{itemize}
@@ -141,9 +144,138 @@
 		\begin{itemize}
 			\item 'Traditional' CFD methods require geometry-specific meshes to be generated. This process can be computationally expensive, especially for complex (read TPMS) geometries. 
 			\item During topology optimization, the need to re-mesh the geometry at every iteration renders 'traditional' methods practically unusable for TPMS geometries. 
-			\item 
+			\item Methods based on Brinkman penalization mitigate these drawbacks by using only one mesh independent on the specific geometry of the solid region. 
+			\item This comes at the cost of lower accuracy, which is acceptable in the early design stage. 
 		\end{itemize}
 	\end{frame}
+	
+	\section{Heat Exchanger Physics}
+	
+	\begin{frame}{How a Heat Exchanger Works}
+		A heat exchanger transfers thermal energy between two fluid streams that are kept physically separated.
+		\begin{itemize}
+			\item A \emph{hot} fluid and a \emph{cold} fluid flow through adjacent channels, separated by a solid.
+			\item Heat conducts through the solid wall; convection then distributes it into the bulk of each fluid stream.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Modeling the Physical Process of Heat Transfer}
+		\begin{itemize}
+			\item The \emph{flow} in both hot and cold fluids is modeled using momentum and mass conservation. 
+			\pause
+			\item The \emph{energy} in both hot and cold fluids is modeled using:
+		\begin{itemize}
+			\item Advection
+			\item Diffusion
+		\end{itemize}
+		\pause
+		\item The heat transfer across the solid wall is governed by conduction. 
+		\end{itemize}
+	\end{frame}
+	
+\begin{frame}{Heat Transfer Mechanisms}
+	Heat is transferred between the two fluid streams via three mechanisms:
+	\begin{itemize}
+		\item \emph{Conduction} diffuses heat through the solid wall:
+		\begin{equation*}
+			\mathbf{q}_\text{cond} = -k \nabla T
+		\end{equation*}
+		\pause
+		\item \emph{Advection} carries heat by fluid motion:
+		\begin{equation*}
+			\mathbf{q}_\text{adv} = \rho c_p T \mathbf{u}
+		\end{equation*}
+		\pause
+		\item \emph{Diffusion} within the fluid also occurs, analogous to the process in the solid:
+		\begin{equation*}
+			\mathbf{q}_\text{diff} = -k_f \nabla T
+		\end{equation*}
+	\end{itemize}
+\end{frame}
+
+	\begin{frame}{Key Simplifications}
+		\begin{itemize}
+			\item Steady state; no start-up, transient solutions, or time-dependent conditions.
+			\pause
+			\item Incompressible flow: density is not varying with temperature or pressure. 
+			\pause
+			\item All material properties are treated as constant.
+			\pause
+			\item No turbulent flow. 
+			\pause
+			\item No viscous dissipation.
+			\pause 
+			\item No thermal radiation; only convection and conduction. 
+			\pause
+			\item No thermo-mechanical coupling (no stress/deformation). 
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{The Equations}
+		This leads us to the following equations to solve:
+		\begin{align*}
+			\nabla \cdot u &= 0 \tag{Cont. eqn.} \\
+			(u\cdot \nabla)u-\nabla\cdot\frac1{Re}\nabla^2u+\nabla p &=-\alpha u \tag{Momentum eqn. } \\
+			u\cdot\nabla T-\nabla\cdot\frac1{Pe}\nabla T &=0 \tag{Energy eqn. }
+		\end{align*}
+	\end{frame}
+	
+	
+	
+	\section{Project Scope}
+	
+	\begin{frame}{Project Objective}
+		Develop a numerical solver for steady-state heat transfer in a gyroid-based 
+		heat exchanger using Comsol.
+		\begin{itemize}
+			\item Solve the coupled flow and heat transfer equations in 3D using
+			the Brinkman penalization framework.
+			\pause
+			\item The gyroid geometry is encoded implicitly through spatially 
+			varying penalization and material coefficients.
+			\pause
+			\item No re-meshing is required when the geometry is modified, 
+			consistent with the Brinkman penalization philosophy.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Why Comsol?}
+		\begin{itemize}
+			\item Comsol natively supports coupled PDE systems, allowing flow and heat transport 
+			to be solved simultaneously within one framework.
+			\pause
+			\item The Brinkman penalization term can be implemented as a 
+			user-defined volume force in the \emph{Laminar Flow} module.
+			\pause
+			\item Spatially varying material properties can be defined via analytic 
+			expressions, directly using the gyroid function.
+			\pause
+			\item The same mesh is reused across different geometries, making 
+			the solver well suited for integration into a topology optimization loop.
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}{Potential Challenges}
+		\begin{itemize}
+			\item \emph{Numerical stiffness} — the sharp transition in material properties
+			at the fluid-solid interface may cause convergence difficulties and 
+			a smooth regularization may be needed.
+			\pause
+			\item \emph{Mesh resolution} — resolving boundary layers near the 
+			gyroid wall in 3D is computationally demanding.
+			\pause
+			\item \emph{Penalization accuracy} — choosing the penalization parameter large enough 
+			to enforce no-slip without causing ill-conditioning is a known 
+			challenge in Brinkman methods.
+			\pause
+			\item \emph{Coupling convergence} — the nonlinear coupling between 
+			flow and temperature fields may require careful solver tuning 
+			in Comsol.
+		\end{itemize}
+	\end{frame}
+	
+	
 	\section{References}
 	
 	\begin{frame}[allowframebreaks]
