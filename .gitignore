@@ -1,11 +1,11 @@
-beamer.aux
-beamer.bbl
-beamer.blg
-beamer.log
-beamer.nav
-beamer.out
-beamer.snm
-beamer.toc
-beamer.vrb
-beamer.synctex.gz
+*.aux
+*.bbl
+*.blg
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
 
