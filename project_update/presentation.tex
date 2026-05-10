@@ -1,3 +1,4 @@
+% !TeX spellcheck = en_US
 \documentclass{beamer}
 \usepackage{ctex, hyperref}
 \usepackage[T1]{fontenc}
@@ -41,7 +42,28 @@
 			\end{center}
 		\end{figure}
 	\end{frame}
-	\begin{frame}{2}
-		innehåll...
+	
+	\begin{frame}
+		\tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
 	\end{frame}
+	
+	\section{Progress}
+	
+	\begin{frame}{Sphere example}
+		Before considering a TPMS structure, we have to be familiar with Comsol and Brinkman penilization. For Axel, this means starting with a more simple example. 
+		\begin{itemize}
+			\item Define an analytic function for the obstacle
+			\item Define the porous medium properties for the region
+		\end{itemize}
+		\includegraphics[width=0.45\textwidth]{isSolid}
+		\includegraphics[width=0.45\textwidth]{kappa_val}
+	\end{frame}
+	\begin{frame}[Sphere example results]
+		\includegraphics[width=0.5\textwidth]{sphereanim.gif}
+	\end{frame}
+	
+	\section{Currently working on}
+	
+	\section{Future work}
+	
 \end{document}
