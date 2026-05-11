@@ -6,6 +6,7 @@
 % other packages
 \usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
 \usepackage{graphicx,pstricks,listings,stackengine}
+\usepackage{media9}
 
 \author{Axel Fritz, You Ming}
 \title{Project Update}
@@ -58,12 +59,34 @@
 		\includegraphics[width=0.45\textwidth]{isSolid}
 		\includegraphics[width=0.45\textwidth]{kappa_val}
 	\end{frame}
-	\begin{frame}[Sphere example results]
-		\includegraphics[width=0.5\textwidth]{sphereanim.gif}
+	
+	\begin{frame}{Sphere example results}
+		\includegraphics[width=0.45\textwidth]{sphere_imag_streamlines}
+		\includegraphics[width=0.45\textwidth]{sphere_slice}
+		Conclusion: Brinkman frameworks works for very simple geometries
+		\end{frame}
+	
+	\begin{frame}{TPMS analysis}
+		The gyroid TMPS structure can be implemented in the same way as the sphere, i.e. by an analytic expression. 
 	\end{frame}
 	
-	\section{Currently working on}
 	
+	
+	\section{Currently working on}
+	\begin{frame}
+			\centering
+			\includegraphics[width=0.45\textwidth]{TPMS_setup}
+	\end{frame}
+		\begin{frame}
+			\includegraphics[width=0.45\textwidth]{TPMS_failed}
+			\includegraphics[width=0.45\textwidth]{TPMS_sliced}
+		\end{frame}
 	\section{Future work}
+	\begin{frame}
+		\begin{itemize}
+			\item Incorporate heat transfer into the model
+			\item Successfully implement a two-channel model
+		\end{itemize}
+	\end{frame}
 	
 \end{document}
