@@ -7,11 +7,12 @@
 \usepackage{siunitx}
 \usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
 \usepackage{graphicx,pstricks,listings,stackengine}
+\usepackage{subcaption}
 \title{Heat Transfer in TPMS-structures}
 \subtitle[]{Final Presentation}
 \institute{Dept. of Mechanical Engineering}
 \author{Axel Fritz \& You Ming}
-\date{Monday June 8th 2026}
+\date{Monday, June 8th, 2026}
 \newcommand{\happy}{:)}
 \newcommand{\sad}{:(}
 \def\cmd#1{\texttt{\color{red}\footnotesize $\backslash$#1}}
@@ -54,7 +55,7 @@
 \section{Background}
 
 	\begin{frame}{Heat Exchangers}
-		Physical models:
+		Model the flow of heat by analysing:
 		\begin{itemize}
 			\item Fluid dynamics (Navier-Stokes eqns.)
 			\item Heat conduction (Heat eqn.)
@@ -71,6 +72,16 @@
 			\item For complex geometries, this is unfeasible\pause
 			\item Warrants the investigation into alternative methods (Brinkman's method)\pause
 			\item Much of the theory is based on the paper \cite{art:TPMS} by Jiang~et~al. 
+		\end{itemize}
+	\end{frame}
+	\begin{frame}{Project Goal}
+		The goal of this project is not to optimize a final industrial heat exchanger, but to test a modeling approach.
+		
+		\begin{itemize}
+			\item Can complex TPMS heat exchangers be simulated without body-fitted meshes? \pause
+			\item Can two independent fluid channels be represented in one computational domain?\pause
+			\item Can heat transfer be modeled using one global temperature field?\pause
+			\item We first use a simple sinusoidal wall as a proof-of-concept.
 		\end{itemize}
 	\end{frame}
 \section{Proof-of-Concept Model}
@@ -94,10 +105,13 @@
 			\includegraphics[width=0.45\textwidth]{imgs/separation_failed2.png}
 			\sad
 		\end{center}
+		\begin{itemize}
+			\item Solid region: $|z-0.05-0.01\sin(10\pi x)|<0.005 $
+			\item Inlet velocity \qty{1}{m\per s}
+			\item Outlet pressure \qty{0}{Pa}
+			\item Permeability 1E13 if channel else 1E-7
+		\end{itemize}
 		
-		\begin{equation*}
-			\text{Solid region: }|z-0.05-0.01\sin(10\pi x)|<0.005
-		\end{equation*}
 	\end{frame}
 	
 	\begin{frame}{Single channel}
@@ -112,12 +126,12 @@
 		\happy
 	\end{frame}
 	\begin{frame}{Dual channels}
-		Luckily the Comsol framework can be nicely adjusted to incorporate two channels in the same model:
+		The Comsol framework can be adjusted to calculate the flow in two separate channels, by introducing an additional fluid domain:
 		
 		\centering
-		\includegraphics[width=0.49\textwidth]{imgs/sep_2ch}
-		\includegraphics[width=0.49\textwidth]{imgs/sep_2ch_sl}
-		\includegraphics[width=0.49\textwidth]{imgs/sep_2ch_p}
+		\includegraphics[width=0.45\textwidth]{imgs/sep_2ch}
+		\includegraphics[width=0.45\textwidth]{imgs/sep_2ch_sl}
+		\includegraphics[width=0.45\textwidth]{imgs/sep_2ch_p}
 		\begin{align*}
 			z-0.05-0.01\sin(10\pi x)&<0.005 \tag{Upper channel} \\
 			z-0.05-0.01\sin(10\pi x)&>-0.005 \tag{Lower channel}
@@ -125,7 +139,7 @@
 		
 	\end{frame}
 	\begin{frame}{Heat transfer}
-		Using the same model as before we can turn on the \emph{Heat Transfer in Fluids} module and solve for the temperature distribution. The thermal conductivity is set to \qty{0.6}{\W\per\m\per\K} for water and \qty{400}{\W\per\m\per\K} for copper. From this we can see that the current design of the heat exchanger is very poor:
+		Using the same model as before we can turn on the \emph{Heat Transfer in Fluids} module and solve for the temperature distribution. The thermal conductivity is set to \qty{0.6}{\W\per\m\per\K} for water and \qty{400}{\W\per\m\per\K} for copper:
 		
 		\centering
 		\includegraphics[width=0.7\textwidth]{imgs/sep_2ch_T}
@@ -154,6 +168,118 @@
 		\item \emph{Disadvantage:} Difficult to simulate performance
 	\end{itemize}
 	\end{frame}
+	\begin{frame}{Modeling TPMS}
+		The same method that was used for the simple sinusoidal geometry is applied to the TMPS structure. 
+		
+		\begin{itemize}
+			\item The geometry is represented by continuous functions. \pause
+			\item Two Brinkman flow fields are solved, one for each fluid.\pause
+			\item A single temperature field is solved over the whole domain.\pause
+			\item Material properties are assigned using smooth interpolation functions.
+		\end{itemize}
+	\end{frame}
+	
+\begin{frame}{Material Fields}
+	Instead of explicitly meshing the fluid-solid interfaces, the domain is divided by a smooth indicator function $\Phi$.
+	
+	\begin{columns}[T]
+		\begin{column}{0.55\textwidth}
+			\begin{align*}
+				\Phi &\approx 1\quad \text{fluid 1} \\
+				\Phi &\approx 0.5\quad \text{solid wall} \\
+				\Phi &\approx 0\quad \text{fluid 2}
+			\end{align*}
+
+		\end{column}
+		\begin{column}{0.42\textwidth}
+			\includegraphics[width=0.9\linewidth]{imgs/indicator}
+		\end{column}
+	\end{columns}
+	\begin{itemize}
+		\item The gyroid wall separates the two fluid channels.
+		\item Inlet and outlet extensions are added to make boundary conditions easier.
+		\item The smooth transition avoids discontinuous material properties.
+	\end{itemize}
+\end{frame}
+\begin{frame}{Flow Model}
+	Two Brinkman equations are used to model the two fluids separately.
+	
+	\begin{itemize}
+		\item For fluid 1, the fluid-1 region has low resistance.
+		\item The wall and fluid-2 region are treated as high-resistance regions.
+		\item Vice versa for fluid 2.
+	\end{itemize}
+	
+	This allows the two flow fields to coexist in the same computational domain without explicitly meshing the interface.
+\end{frame}
+\begin{frame}{Heat Transfer Model}
+	The heat transfer problem is solved using one global temperature field; $\mathbf{u}_{T} =\mathbf{u}_{\text{fluid 1}} +  \mathbf{u}_{\text{fluid 2}}$.
+	
+	\begin{itemize}
+		\item Fluid regions: convection and conduction, Pe=800
+		\item Wall region: conduction only, Pe=200
+		\item The Péclet number (Pe) is interpolated between fluid and wall regions.
+	\end{itemize}
+	\begin{center}
+		\includegraphics[width=0.45\textwidth]{imgs/peclet}
+	\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}{TPMS Simulation}
+	The model was solved for a \qty{50}{K} inlet temperature difference.
+	
+	\begin{itemize}
+		\item The two velocity fields remain separated by the TPMS wall.
+		\item The temperature field changes across the heat-exchanger core.
+		\item Heat is transferred through the TPMS wall from the hot fluid to the cold fluid.
+	\end{itemize}
+	\begin{center}
+		\includegraphics[width=0.3\textwidth]{imgs/res1}
+		\includegraphics[width=0.3\textwidth]{imgs/res2}
+		\includegraphics[width=0.3\textwidth]{imgs/res3}
+	\end{center}
+\end{frame}
+\begin{frame}{Discretizations}
+	Two cases with different mesh discretizations were computed. 
+
+		\begin{figure}
+		\begin{subfigure}{0.35\textwidth}
+			\includegraphics[width=\textwidth]{imgs/mesh1}
+			\caption{Case 1}
+		\end{subfigure}
+		\begin{subfigure}{0.35\textwidth}
+			\includegraphics[width=\linewidth]{imgs/mesh2}
+			\caption{Case 2}
+		\end{subfigure}
+		\caption{Different discretizations}
+	\end{figure}
+
+\end{frame}
+\begin{frame}{Results}
+	\begin{tabular}{l|c|c|c}
+		Parameter [Unit] & Case 1 &Case2 & Change\\ \hline
+		Hot-side inlet temp. [K]& 323.15 & 323.15 & \\
+		Hot-side avg. outlet temp. [K] & 289.07 &289.48 & +0.41 \\
+		Cold-side inlet temp. [K] & 273.15 & 273.15 & \\
+		Cold-side avg. outlet temp. [K] & 293.61 & 295.88 & +2.27\\
+		Hot-side pressure drop [Pa] & 17.121 & 18.553 & +8.36\% \\
+		Cold-side pressure drop [Pa] &8.6676 &9.4067 & +8.53\%
+	\end{tabular}
+\end{frame}
+\begin{frame}{Conclusion}
+	This method has a certain degree of robustness with respect to mesh discretization. Therefore, even if the local $\Phi$ boundary is rough, as long as the overall flow-channel volume fraction, resistance distribution, and heat-transfer area have similar averaged effects, the outlet temperature and pressure drop may still be close.
+\end{frame}
+\begin{frame}{Discussion}
+	The TPMS model demonstrates that the Brinkman-based method can be extended from a simple wall to a complex gyroid structure.
+	
+	\begin{itemize}
+		\item Advantage: no body-fitted mesh is required for the internal TPMS wall.
+		\item Advantage: geometry and wall thickness can be changed by parameters.
+		\item Limitation: the result depends on mesh resolution and interpolation width.
+	\end{itemize}
+\end{frame}
+
 \section{References}
 	\begin{frame}[allowframebreaks]
 		\bibliography{ref.bib}
